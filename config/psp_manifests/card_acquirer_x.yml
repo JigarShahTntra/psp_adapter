@@ -1,0 +1,24 @@
+psp_id: card_acquirer_x
+version: "1.0.0"
+protocol: REST
+base_url: "http://localhost:4567" # change to actual sandbox
+auth:
+  type: bearer
+  env_token_key: "CARDX_API_TOKEN"
+
+operations:
+  authorize:
+    method: POST
+    path: "/payments/authorize"
+    request:
+      map:
+        amount.total: "{{ amount.value }}"
+        amount.currency: "{{ amount.currency }}"
+        merchant.ref: "{{ metadata.merchant_id }}"
+        card.token: "{{ metadata.card_token }}"
+    response:
+      success_when: "{{ response.status }} == 'approved'"
+      map:
+        psp_txn_id: "{{ response.id }}"
+        status: "{{ response.status }}"
+        raw: "{{ response | json }}"
